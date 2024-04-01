@@ -1,6 +1,7 @@
 import os
 import zipfile
 import shutil
+import requests
 import tensorflow as tf
 from tensorflow.keras.optimizers import RMSprop
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
@@ -27,18 +28,22 @@ def get_data_from_tensorflow():
 
     # Downloading horse-or-human dataset
     print("Downloading horse-or-human dataset...")
-    !wget https://storage.googleapis.com/download.tensorflow.org/data/horse-or-human.zip
-    
+    url_horse_human = "https://storage.googleapis.com/download.tensorflow.org/data/horse-or-human.zip"
+    response = requests.get(url_horse_human)
+    with open('horse-or-human.zip', 'wb') as f:
+        f.write(response.content)
+
     # Downloading validation horse-or-human dataset
     print("Downloading validation horse-or-human dataset...")
-    !wget https://storage.googleapis.com/download.tensorflow.org/data/validation-horse-or-human.zip
+    url_validation = "https://storage.googleapis.com/download.tensorflow.org/data/validation-horse-or-human.zip"
+    response = requests.get(url_validation)
+    with open('validation-horse-or-human.zip', 'wb') as f:
+        f.write(response.content)
 
     # Extracting the downloaded dataset
     print("Extracting the downloaded dataset...")
-    local_zip = 'horse-or-human.zip'
-    zip_ref = zipfile.ZipFile(local_zip, 'r')
-    zip_ref.extractall('/tmp/horse-or-human')
-    zip_ref.close()
+    with zipfile.ZipFile('horse-or-human.zip', 'r') as zip_ref:
+        zip_ref.extractall('/tmp/horse-or-human')
     print("Successfully extracted 'horse-or-human.zip' file.")
 
     # Directory with horse training images
