@@ -1,5 +1,8 @@
-name: Docker Image CI
+# Nome da nossa pipeline
+name: Docker Image CI 
 
+# Aqui estamos indicando que vamos ativá-la toda vez que um commit for enviado
+# para a branch especificada, que neste caso é a branch main
 on:
   push:
     branches: [ "main" ]
@@ -7,25 +10,65 @@ on:
     branches: [ "main" ]
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+      # Passo 1: Checkout do código-fonte
+      - uses: actions/checkout@v3
 
-    - name: Build the Docker image locally
-      run: docker build . -t my-image-name:latest
+      # Passo 2: Construção da imagem Docker localmente
+      - name: Build da imagem Docker localmente
+        run: docker build . -t my-image-name:latest
 
-    - name: Debug - List Docker images
-      run: docker images
+      # Passo 3: Debug - Listagem das imagens Docker
+      - name: Debug - Listagem das imagens Docker
+        run: docker images
 
-    - name: Tag and Push the Docker image
-      run: |
-        echo "$DOCKER_HUB_PASSWORD" | docker login --username "$DOCKER_HUB_USERNAME" --password-stdin
-        docker tag my-image-name:latest $DOCKER_HUB_USERNAME/my-image-name:latest
-        docker push $DOCKER_HUB_USERNAME/my-image-name:latest
-      env:
-        DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
-        DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
+      # Passo 4: Marcação e Envio da imagem Docker para o Docker Hub, atenção o nome da imagem do github que estamos subindo
+      - name: Tag e Envio da imagem Docker
+        run: |
+          echo "$DOCKER_HUB_PASSWORD" | docker login --username "$DOCKER_HUB_USERNAME" --password-stdin
+          docker tag my-image-name:latest $DOCKER_HUB_USERNAME/my-image-name:latest
+          docker push $DOCKER_HUB_USERNAME/my-image-name:latest
+        env:
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }} 
+          DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
+
+# Nome da nossa pipeline
+name: Docker Image CI 
+
+# Aqui estamos indicando que vamos ativá-la toda vez que um commit for enviado
+# para a branch especificada, que neste caso é a branch main
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Passo 1: Checkout do código-fonte
+      - uses: actions/checkout@v3
+
+      # Passo 2: Construção da imagem Docker localmente
+      - name: Build da imagem Docker localmente
+        run: docker build . -t ${{ github.repository }}:latest
+
+      # Passo 3: Debug - Listagem das imagens Docker
+      - name: Debug - Listagem das imagens Docker
+        run: docker images
+
+      # Passo 4: Marcação e Envio da imagem Docker para o Docker Hub, 
+      # atenção o nome da imagem do github que estamos subindo, aqui pegamos o nome do nosso repositório
+      - name: Tag e Envio da imagem Docker
+        run: |
+          echo "$DOCKER_HUB_PASSWORD" | docker login --username "$DOCKER_HUB_USERNAME" --password-stdin
+          docker tag ${{ github.repository }}:latest $DOCKER_HUB_USERNAME/${{ github.repository }}:latest
+          docker push $DOCKER_HUB_USERNAME/${{ github.repository }}:latest
+        env:
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }} #Aqui estamos puxando segredos dentro do github
+          DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
