@@ -19,7 +19,7 @@ jobs:
 
       # Passo 2: Construção da imagem Docker localmente
       - name: Build da imagem Docker localmente
-        run: docker build . -t ${{ github.repository }}:latest
+        run: docker build . -t ${{ github.repository | lower  }}:latest
 
       # Passo 3: Debug - Listagem das imagens Docker
       - name: Debug - Listagem das imagens Docker
@@ -30,8 +30,8 @@ jobs:
       - name: Tag e Envio da imagem Docker
         run: |
           echo "$DOCKER_HUB_PASSWORD" | docker login --username "$DOCKER_HUB_USERNAME" --password-stdin
-          docker tag ${{ github.repository }}:latest $DOCKER_HUB_USERNAME/${{ github.repository }}:latest
-          docker push $DOCKER_HUB_USERNAME/${{ github.repository }}:latest
+          docker tag ${{ github.repository }}:latest $DOCKER_HUB_USERNAME/${{ github.repository | lower }}:latest
+          docker push $DOCKER_HUB_USERNAME/${{ github.repository | lower }}:latest
         env:
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }} #Aqui estamos puxando segredos dentro do github
           DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
